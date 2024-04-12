@@ -95,6 +95,49 @@ class MessageBox(Screen):
 	def layoutFinished(self):
 		self.setTitle(self.title)
 
+	def autoResize(self):
+		desktop_w = enigma.getDesktop(0).size().width()
+		desktop_h = enigma.getDesktop(0).size().height()
+		count = len(self.list)
+
+		if not self["text"].text:
+			textsize = (520, 0)
+			listsize = (520, 25*count)
+			if self["ErrorPixmap"].visible or self["QuestionPixmap"].visible or self["InfoPixmap"].visible:
+				self["list"].instance.move(enigma.ePoint(65, 0))
+			else:
+				self["list"].instance.move(enigma.ePoint(0, 0))
+			self["list"].instance.resize(enigma.eSize(*listsize))
+
+		else:
+			textsize = self["text"].getSize()
+			if textsize[0] < textsize[1]:
+				textsize = (textsize[1],textsize[0]+10)
+			if textsize[0] > 520:
+				textsize = (textsize[0], textsize[1]+25)
+			else:
+				textsize = (520, textsize[1]+25)
+			listsize = (textsize[0], 25*count)
+
+			self["text"].instance.resize(enigma.eSize(*textsize))
+			if self["ErrorPixmap"].visible or self["QuestionPixmap"].visible or self["InfoPixmap"].visible:
+				self["text"].instance.move(enigma.ePoint(65, 0))
+			else:
+				self["text"].instance.move(enigma.ePoint(10, 10))
+
+			if self["ErrorPixmap"].visible or self["QuestionPixmap"].visible or self["InfoPixmap"].visible:
+				self["list"].instance.move(enigma.ePoint(65, textsize[1]))
+				wsizex = textsize[0]+65
+			else:
+				self["list"].instance.move(enigma.ePoint(0, textsize[1]))
+				wsizex = textsize[0]
+			self["list"].instance.resize(enigma.eSize(*listsize))
+
+		wsizey = textsize[1]+listsize[1]
+		wsize = (wsizex, wsizey)
+		self.instance.resize(enigma.eSize(*wsize))
+		self.instance.move(enigma.ePoint((desktop_w-wsizex)/2, (desktop_h-wsizey)/2))	
+
 	def initTimeout(self, timeout):
 		self.timeout = timeout
 		if timeout > 0:
